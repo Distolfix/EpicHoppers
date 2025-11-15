@@ -134,6 +134,18 @@ public class ModuleSuction extends Module {
                 continue;
             }
 
+            // CRITICAL: Check if this item is in the VOID filter first
+            // Void items should be DELETED immediately without entering the hopper
+            boolean isVoidItem = hopper.getFilter().getVoidList().stream()
+                    .anyMatch(filterItem -> Methods.isSimilarMaterial(itemStack, filterItem));
+
+            if (isVoidItem) {
+                // VOID filter: Delete the item immediately without adding to hopper
+                // This prevents the item from consuming transfer cycles
+                item.remove();
+                continue;
+            }
+
             // respect filter if no endpoint
             if (!filterEndpoint
                     && !(hopper.getFilter().getWhiteList().isEmpty() && hopper.getFilter().getBlackList().isEmpty())) {
